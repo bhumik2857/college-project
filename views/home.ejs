@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 Student Management System</h1>
+            <div class="nav-actions">
+                <a href="/add" class="btn btn-primary">+ Add New Student</a>
+                <form method="POST" action="/user/logout" style="display:inline;">
+                    <button type="submit" class="btn btn-secondary">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>All Students</h2>
+
+        <% if(students && students.length > 0) { %>
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>College</th>
+                        <th>Roll No</th>
+                        <th>Course</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% students.forEach(student => { %>
+                        <tr>
+                            <td><%= student.firstName %></td>
+                            <td><%= student.lastName %></td>
+                            <td><%= student.email %></td>
+                            <td><%= student.college %></td>
+                            <td><%= student.universityRollNo %></td>
+                            <td><%= student.course %></td>
+                            <td>
+                                <a href="/edit/<%= student._id %>" class="btn-edit">Edit</a>
+                                <form method="POST" action="/student/<%= student._id %>?_method=DELETE" style="display:inline;">
+                                    <button type="submit" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <div class="empty-state">
+                <p>No students found.</p>
+                <a href="/add" class="btn btn-primary">Add First Student</a>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
