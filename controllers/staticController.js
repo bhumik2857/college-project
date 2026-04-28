@@ -1,4 +1,4 @@
-const Students=require("../models/studets");
+const Students=require("../models/students");
 
 async function getHome(req,res){
     const students=await Students.find({});

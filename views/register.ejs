@@ -8,43 +8,97 @@
 </head>
 <body>
 
-    <div class="register-container">
-        <div class="register-box">
+<div class="register-container">
+    <div class="register-box">
 
-            <!-- 🔥 Welcome Heading -->
-            <h1 class="welcome-text">Welcome 🎉</h1>
-            <h2 class="sub-text">Create your account</h2>
+        <h1 class="welcome-text">Welcome 🎉</h1>
+        <h2 class="sub-text">Create your account</h2>
 
-            <!-- 📚 App Name -->
-            <p class="app-title">📚 Student Management System</p>
+        <p class="app-title">📚 Student Management System</p>
 
-            <form method="POST" action="/user/register">
+        <form method="POST" action="/user/register">
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+
+            <!-- ✅ ROLE -->
+            <div class="form-group">
+                <label>Register As</label>
+                <select name="role" id="role" required>
+                    <option value="">Select Role</option>
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <!-- ✅ STUDENT FIELDS (HIDDEN INITIALLY) -->
+            <div id="studentFields" style="display:none;">
 
                 <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                    <label>First Name</label>
+                    <input type="text" name="firstName">
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    <label>Last Name</label>
+                    <input type="text" name="lastName">
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <label>College</label>
+                    <input type="text" name="college">
                 </div>
 
-                <button type="submit" class="btn">Register</button>
-            </form>
+                <div class="form-group">
+                    <label>University Roll No</label>
+                    <input type="number" name="universityRollNo">
+                </div>
 
-            <p class="register-footer">
-                Already have an account? 
-                <a href="/login">Login here</a>
-            </p>
+                <div class="form-group">
+                    <label>Course</label>
+                    <input type="text" name="course">
+                </div>
 
-        </div>
+            </div>
+
+            <button type="submit" class="btn">Register</button>
+
+        </form>
+
+        <p class="register-footer">
+            Already have an account?
+            <a href="/login">Login here</a> 
+        </p>
+
     </div>
+</div>
+
+<!-- ✅ SCRIPT -->
+<script>
+    const role = document.getElementById("role");
+    const studentFields = document.getElementById("studentFields");
+
+    role.addEventListener("change", () => {
+        if (role.value === "student") {
+            studentFields.style.display = "block";
+        } else {
+            studentFields.style.display = "none";
+        }
+    });
+</script>
 
 </body>
 </html>

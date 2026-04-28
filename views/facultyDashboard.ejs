@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Faculty Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+
+    <h1 class="welcome-text">Faculty Dashboard 👩‍🏫</h1>
+
+    <% students.forEach(student => { %>
+
+        <div class="faculty-card">
+
+            <h3><%= student.firstName %> <%= student.lastName %></h3>
+            <p><%= student.email %></p>
+
+            <!-- Attendance -->
+            <form action="/faculty/attendance/<%= student._id %>" method="POST">
+                <input name="present" placeholder="Present">
+                <input name="total" placeholder="Total">
+                <button class="btn">Update Attendance</button>
+            </form>
+
+            <!-- Timetable + CGPA -->
+            <form action="/faculty/update/<%= student._id %>" method="POST">
+                <input name="timetable" placeholder="Timetable">
+                <input name="cgpa" placeholder="CGPA">
+                <button class="btn">Update Details</button>
+            </form>
+
+        </div>
+
+    <% }) %>
+
+</div>
+
+</body>
+</html>

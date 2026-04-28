@@ -1,20 +1,27 @@
-const {getHome,getEdit,getAdd,getLogin,getRegister}=require("../controllers/staticController");
-const express=require("express");
-const router=express.Router();
-const {restrictedToLoginOnly}=require("../middlewares/auth");
+const {
+  getHome,
+  getEdit,
+  getAdd,
+  getLogin,
+  getRegister
+} = require("../controllers/staticController");
 
-router.get("/",restrictedToLoginOnly,getHome);
+const express = require("express");
+const router = express.Router();
 
-router.get("/add",restrictedToLoginOnly,getAdd);
+const { restrictedToLoginOnly } = require("../middlewares/auth");
 
-router.get("/edit/:id",restrictedToLoginOnly,getEdit);  
+// ❌ REMOVE restriction from home
+router.get("/", (req, res) => {
+  res.redirect("/login");
+});
 
-router.get("/login",getLogin);
+// protected routes
+router.get("/add", restrictedToLoginOnly, getAdd);
+router.get("/edit/:id", restrictedToLoginOnly, getEdit);
 
-router.get("/register",getRegister);
+// public routes
+router.get("/login", getLogin);
+router.get("/register", getRegister);
 
-
-
-module.exports=router;
-
-
+module.exports = router;

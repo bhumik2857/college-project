@@ -1,61 +1,33 @@
-const Students=require("../models/studets");
+const Students = require("../models/students");
+const Attendance = require("../models/attendance");
 
-async function addNewStudent(req,res){
-    const body=req.body;
-    if(!body)
-        return res.status(400).redirect("add");
-    try{
-        await Students.create({
-            ...body
-        });
+async function getStudentDashboard(req, res) {
+  try {
+    const student = await Students.findOne({ email: req.user.email });
 
-        console.log("new user added",body);
-        return res.redirect("/");
+    let attendance = await Attendance.findOne({ studentId: student._id });
+
+    // 🔥 AUTO CREATE DATA IF NOT EXISTS
+    if (!attendance) {
+      attendance = await Attendance.create({
+        studentId: student._id,
+        present: Math.floor(Math.random() * 20 + 10),
+        total: 30
+      });
     }
-    catch(err){
-        return res.status(400).redirect("/add");
 
-    }
-};
-async function editStudent(req,res){
-    const body=req.body;
-    const id=req.params.id;
-    const updatedStudent=await Students.findByIdAndUpdate(
-        id,
-        body,
-        {new:true} // return updated student
-    );
+    let percentage = ((attendance.present / attendance.total) * 100).toFixed(2);
 
-    if(!updatedStudent)
-        {
-             console.log("error in edit api");
-             return res.status(404).redirect("/edit");
-        } 
+    res.render("studentDashboard", {
+      student,
+      attendance,
+      percentage
+    });
 
-    console.log("students edited succesfuuly",updatedStudent);
-
-    return res.redirect("/");
-
-    
-};
-async function deleteStudent(req,res){
-    const id=req.params.id;
-   const deletedStudent=await Students.findByIdAndDelete(id,{new:true});
-
-     if(!deletedStudent) {
-        console.log("error in delte api");
-        return res.status(404).redirect("/");
-     }
-
-    console.log("students deleted succesfuuly",deleteStudent);
-
-    return res.redirect("/");
-};
-
-
-
-module.exports={
-    addNewStudent,
-    editStudent,
-    deleteStudent
+  } catch (err) {
+    console.log(err);
+    res.send("Error loading dashboard");
+  }
 }
+
+module.exports = { getStudentDashboard };
