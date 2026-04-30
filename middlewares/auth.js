@@ -1,12 +1,17 @@
-const {getUser}=require("../service/auth");
-function restrictedToLoginOnly(req,res,next){
-    const userUid=req.cookies?.uid;
-    if(!userUid) return res.status(401).redirect("/login");
+const jwt = require("jsonwebtoken");
 
-    const user=getUser(userUid);
-    if(!user) return res.status(401).redirect("/login");
+function restrictedToLoginOnly(req, res, next) {
+  const token = req.cookies.uid;
 
-    req.user=user;
+  if (!token) return res.redirect("/login");
+
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = user;
     next();
-};
-module.exports={restrictedToLoginOnly};
+  } catch {
+    return res.redirect("/login");
+  }
+}
+
+module.exports = { restrictedToLoginOnly };

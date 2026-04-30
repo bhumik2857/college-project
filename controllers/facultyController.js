@@ -1,38 +1,85 @@
-const Students = require("../models/students");
+const Users = require("../models/user");
 const Attendance = require("../models/attendance");
+const Timetable = require("../models/timetable");
 
+// ================= DASHBOARD =================
 async function getFacultyDashboard(req, res) {
-  const students = await Students.find({});
-  const attendance = await Attendance.find({});
+  try {
+    // 🔥 get only students from users collection
+    const students = await Users.find({ role: "student" });
 
-  res.render("facultyDashboard", { students, attendance });
+    const attendance = await Attendance.find();
+    const timetable = await Timetable.find();
+
+    res.render("facultyDashboard", {
+      students,
+      attendance,
+      timetable
+    });
+
+  } catch (err) {
+    console.log("FACULTY DASHBOARD ERROR:", err);
+    res.send("Error loading dashboard");
+  }
 }
 
+// ================= UPDATE CGPA =================
+async function updateCGPA(req, res) {
+  try {
+    const { studentId, cgpa } = req.body;
+
+    await Users.findByIdAndUpdate(studentId, { cgpa });
+
+    res.redirect("/faculty/dashboard");
+
+  } catch (err) {
+    console.log("CGPA ERROR:", err);
+    res.send("Error updating CGPA");
+  }
+}
+
+// ================= UPDATE ATTENDANCE =================
 async function updateAttendance(req, res) {
-  const { present, total } = req.body;
+  try {
+    const { studentId, subject, attendedClasses, totalClasses } = req.body;
 
-  await Attendance.findOneAndUpdate(
-    { studentId: req.params.id },
-    { present, total },
-    { upsert: true }
-  );
+    await Attendance.create({
+      studentId,
+      subject,
+      attendedClasses,
+      totalClasses
+    });
 
-  res.redirect("/faculty");
+    res.redirect("/faculty/dashboard");
+
+  } catch (err) {
+    console.log("ATTENDANCE ERROR:", err);
+    res.send("Error updating attendance");
+  }
 }
 
-async function updateStudent(req, res) {
-  const { timetable, cgpa } = req.body;
+// ================= ADD TIMETABLE =================
+async function addTimetable(req, res) {
+  try {
+    const { day, subject, time } = req.body;
 
-  await Students.findByIdAndUpdate(req.params.id, {
-    timetable,
-    cgpa
-  });
+    await Timetable.create({
+      day,
+      subject,
+      time
+    });
 
-  res.redirect("/faculty");
+    res.redirect("/faculty/dashboard");
+
+  } catch (err) {
+    console.log("TIMETABLE ERROR:", err);
+    res.send("Error adding timetable");
+  }
 }
 
 module.exports = {
   getFacultyDashboard,
+  updateCGPA,
   updateAttendance,
-  updateStudent
+  addTimetable
 };

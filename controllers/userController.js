@@ -1,81 +1,95 @@
-const Users = require("../models/users");
+const Users = require("../models/user");
 const bcrypt = require("bcrypt");
 const { setUser } = require("../service/auth");
 
-
-// 🔐 REGISTER
+// ================= REGISTER =================
 async function handleRegister(req, res) {
-    try {
-        const { name, email, password, role } = req.body;
+  try {
+    let { name, email, password, role } = req.body;
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        await Users.create({
-            name,
-            email,
-            password: hashedPassword,
-            role   // ✅ VERY IMPORTANT
-        });
-
-        return res.redirect("/login");
-
-    } catch (err) {
-        return res.render("register", {
-            error: "User already exists or something went wrong ❌"
-        });
+    if (!name || !email || !password || !role) {
+      return res.render("register", {
+        error: "All fields required ❌"
+      });
     }
+
+    email = email.trim().toLowerCase();
+
+    const existing = await Users.findOne({ email });
+    if (existing) {
+      return res.render("register", {
+        error: "User already exists ❌"
+      });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await Users.create({
+      name,
+      email,
+      password: hash,
+      role,
+      cgpa: 0   // 👈 store cgpa directly here
+    });
+
+    return res.redirect("/login");
+
+  } catch (err) {
+    console.log("REGISTER ERROR:", err);
+    return res.render("register", { error: err.message });
+  }
 }
 
-
-// 🔐 LOGIN
+// ================= LOGIN =================
 async function handleLogin(req, res) {
-    const { email, password } = req.body;
+  try {
+    let { email, password } = req.body;
 
-    const user = await Users.findOne({ email });
-
-    if (!user) {
-        return res.render("login", { error: "User not registered ❌" });
+    if (!email || !password) {
+      return res.render("login", {
+        error: "Email & password required ❌"
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    email = email.trim().toLowerCase();
 
-    if (!isMatch) {
-        return res.render("login", { error: "Wrong password ❌" });
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.render("login", {
+        error: "User not found ❌"
+      });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.render("login", {
+        error: "Wrong password ❌"
+      });
     }
 
     const token = setUser(user);
 
-    res.cookie("uid", token, {
-        maxAge: 24 * 60 * 60 * 1000,
-        httpOnly: true
-    });
+    res.cookie("uid", token, { httpOnly: true });
 
-    // ✅ ROLE BASED REDIRECT
-    if (user.role === "student") {
-        return res.redirect("/student");
-    }
-
-    if (user.role === "faculty") {
-        return res.redirect("/faculty");
-    }
-
-    if (user.role === "admin") {
-        return res.redirect("/admin");
-    }
+    if (user.role === "student") return res.redirect("/student/dashboard");
+    if (user.role === "faculty") return res.redirect("/faculty/dashboard");
 
     return res.redirect("/login");
+
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+    return res.render("login", { error: "Login failed ❌" });
+  }
 }
 
-
-// 🔓 LOGOUT
-async function handleLogout(req, res) {
-    res.clearCookie("uid");
-    return res.redirect("/login");
+// ================= LOGOUT =================
+function handleLogout(req, res) {
+  res.clearCookie("uid");
+  return res.redirect("/login");
 }
-
 
 module.exports = {
-    handleLogin,
-    handleRegister,
-    handleLogout
+  handleRegister,
+  handleLogin,
+  handleLogout
 };

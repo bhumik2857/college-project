@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { getStudentDashboard } = require("../controllers/studentController");
+const { restrictedToLoginOnly } = require("../middlewares/auth");
+const studentController = require("../controllers/studentController");
 
-router.get("/", getStudentDashboard);
+router.get("/dashboard", restrictedToLoginOnly, studentController.getStudentDashboard);
 
 module.exports = router;

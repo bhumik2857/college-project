@@ -1,20 +1,49 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-  getFacultyDashboard,
-  updateAttendance,
-  updateStudent
-} = require("../controllers/facultyController");
+const { restrictedToLoginOnly } = require("../middlewares/auth");
+const facultyController = require("../controllers/facultyController");
 
-// dashboard
-router.get("/", getFacultyDashboard);
+// ================= DASHBOARD =================
+router.get(
+  "/dashboard",
+  restrictedToLoginOnly,
+  facultyController.getFacultyDashboard
+);
 
-// update attendance
-router.post("/attendance/:id", updateAttendance);
+// ================= UPDATE CGPA =================
+router.post("/update-cgpa", async (req, res) => {
+  const { studentId, cgpa } = req.body;
 
-// update timetable + cgpa
-router.post("/update/:id", updateStudent);
+  const Student = require("../models/student");
+
+  await Student.findByIdAndUpdate(studentId, { cgpa });
+
+  res.redirect("/faculty/dashboard");
+});
+
+// ================= UPDATE ATTENDANCE =================
+router.post("/update-attendance", async (req, res) => {
+  const { studentId, subject, attendedClasses, totalClasses } = req.body;
+
+  const Attendance = require("../models/attendance");
+
+  await Attendance.findOneAndUpdate(
+    { studentId, subject },
+    { attendedClasses, totalClasses },
+    { upsert: true }
+  );
+
+  res.redirect("/faculty/dashboard");
+});
+
+// ================= ADD TIMETABLE =================
+router.post("/add-timetable", async (req, res) => {
+  const Timetable = require("../models/timetable");
+
+  await Timetable.create(req.body);
+
+  res.redirect("/faculty/dashboard");
+});
 
 module.exports = router;
-console.log(updateAttendance, updateStudent);

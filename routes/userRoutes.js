@@ -1,5 +1,9 @@
 const express = require("express");
 const router = express.Router();
+router.get("/logout", (req, res) => {
+    res.clearCookie("token"); // or whatever cookie you used
+    return res.redirect("/user/login");
+});
 
 const {
   handleLogin,
@@ -7,35 +11,13 @@ const {
   handleLogout
 } = require("../controllers/userController");
 
-const Users = require("../models/users");
-
-// existing routes
-router.post("/login", handleLogin);
+// REGISTER
 router.post("/register", handleRegister);
-router.post("/logout", handleLogout);
 
-// ✅ FORGOT PASSWORD PAGE
-router.get("/forgot", (req, res) => {
-  res.render("forgot");
-});
+// LOGIN
+router.post("/login", handleLogin);
 
-// ✅ RESET PASSWORD LOGIC (WRITE HERE 👇)
-router.post("/forgot", async (req, res) => {
-  const { email, newPassword } = req.body;
-
-  const user = await Users.findOne({ email });
-
-  if (!user) {
-    return res.render("forgot", { error: "Email not found ❌" });
-  }
-
-  const bcrypt = require("bcrypt");
-  const hashed = await bcrypt.hash(newPassword, 10);
-
-  user.password = hashed;
-  await user.save();
-
-  res.redirect("/login");
-});
+// LOGOUT
+router.get("/logout", handleLogout);
 
 module.exports = router;

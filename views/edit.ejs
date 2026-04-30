@@ -7,59 +7,77 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
     <nav class="navbar">
         <div class="container">
             <h1 class="logo">📚 Student Management</h1>
-            <a href="/" class="btn btn-secondary">← Back to Home</a>
+            <a href="/" class="btn">← Back to Home</a>
         </div>
     </nav>
 
     <div class="container">
+
         <div class="form-wrapper">
+
             <h2>Edit Student</h2>
 
+            <!-- SAFE ERROR DISPLAY -->
+            <% if (typeof error !== "undefined" && error) { %>
+                <p style="color:red;"><%= error %></p>
+            <% } %>
+
+            <% if (!student) { %>
+                <p style="color:red;">Student not found ❌</p>
+            <% } else { %>
+
             <form method="POST" action="/student/edit/<%= student._id %>?_method=PATCH">
+
                 <div class="form-group">
-                    <label for="firstName">First Name *</label>
-                    <input type="text" id="firstName" name="firstName" value="<%= student.firstName %>" required>
+                    <label>First Name *</label>
+                    <input type="text" name="firstName" value="<%= student.firstName %>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="lastName">Last Name *</label>
-                    <input type="text" id="lastName" name="lastName" value="<%= student.lastName %>" required>
+                    <label>Last Name *</label>
+                    <input type="text" name="lastName" value="<%= student.lastName %>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" value="<%= student.email %>" required>
+                    <label>Email *</label>
+                    <input type="email" name="email" value="<%= student.email %>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="college">College *</label>
-                    <input type="text" id="college" name="college" value="<%= student.college %>" required>
+                    <label>College *</label>
+                    <input type="text" name="college" value="<%= student.college %>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="universityRollNo">Roll No *</label>
-                    <input type="number" id="universityRollNo" name="universityRollNo" value="<%= student.universityRollNo %>" required>
+                    <label>Roll No *</label>
+                    <input type="number" name="universityRollNo" value="<%= student.universityRollNo %>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="course">Course *</label>
-                    <select id="course" name="course" required>
-                        <option <%= student.course === 'B.Tech' ? 'selected' : '' %>>B.Tech</option>
-                        <option <%= student.course === 'B.Sc' ? 'selected' : '' %>>B.Sc</option>
-                        <option <%= student.course === 'B.A' ? 'selected' : '' %>>B.A</option>
-                        <option <%= student.course === 'B.Com' ? 'selected' : '' %>>B.Com</option>
-                        <option <%= student.course === 'MBA' ? 'selected' : '' %>>MBA</option>
-                        <option <%= student.course === 'MCA' ? 'selected' : '' %>>MCA</option>
+                    <label>Course *</label>
+                    <select name="course" required>
+                        <option value="B.Tech" <%= student.course === 'B.Tech' ? 'selected' : '' %>>B.Tech</option>
+                        <option value="B.Sc" <%= student.course === 'B.Sc' ? 'selected' : '' %>>B.Sc</option>
+                        <option value="B.A" <%= student.course === 'B.A' ? 'selected' : '' %>>B.A</option>
+                        <option value="B.Com" <%= student.course === 'B.Com' ? 'selected' : '' %>>B.Com</option>
+                        <option value="MBA" <%= student.course === 'MBA' ? 'selected' : '' %>>MBA</option>
+                        <option value="MCA" <%= student.course === 'MCA' ? 'selected' : '' %>>MCA</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Update Student</button>
-                <a href="/" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn">Update Student</button>
+                <a href="/" class="btn">Cancel</a>
+
             </form>
+
+            <% } %>
+
         </div>
     </div>
+
 </body>
 </html>

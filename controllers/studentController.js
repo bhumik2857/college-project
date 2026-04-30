@@ -1,31 +1,29 @@
-const Students = require("../models/students");
+const Users = require("../models/user");
 const Attendance = require("../models/attendance");
+const Timetable = require("../models/timetable");
 
 async function getStudentDashboard(req, res) {
   try {
-    const student = await Students.findOne({ email: req.user.email });
+    const user = await Users.findById(req.user.id);
 
-    let attendance = await Attendance.findOne({ studentId: student._id });
-
-    // 🔥 AUTO CREATE DATA IF NOT EXISTS
-    if (!attendance) {
-      attendance = await Attendance.create({
-        studentId: student._id,
-        present: Math.floor(Math.random() * 20 + 10),
-        total: 30
-      });
+    if (!user) {
+      return res.send("User not found ❌");
     }
 
-    let percentage = ((attendance.present / attendance.total) * 100).toFixed(2);
+    const attendance = await Attendance.find({
+      studentId: user._id
+    });
+
+    const timetable = await Timetable.find();
 
     res.render("studentDashboard", {
-      student,
+      student: user,   // 🔥 use user directly
       attendance,
-      percentage
+      timetable
     });
 
   } catch (err) {
-    console.log(err);
+    console.log("STUDENT ERROR:", err);
     res.send("Error loading dashboard");
   }
 }

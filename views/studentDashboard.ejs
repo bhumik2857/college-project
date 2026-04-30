@@ -1,47 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Student Dashboard</title>
-    <link rel="stylesheet" href="/style.css">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
 <div class="dashboard-container">
 
-    <h1 class="welcome-text">Welcome <%= student.firstName %> 🎓</h1>
+  <h1>Student Dashboard 🎓</h1>
 
-    <div class="dashboard-grid">
+  <!-- ================= STUDENT INFO ================= -->
+  <h2>My Details</h2>
 
-        <!-- Profile -->
-        <div class="dashboard-card">
-            <h2>👤 Profile</h2>
-            <p><strong>Name:</strong> <%= student.firstName %> <%= student.lastName %></p>
-            <p><strong>Roll No:</strong> <%= student.universityRollNo %></p>
-            <p><strong>Course:</strong> <%= student.course %></p>
-        </div>
+  <p><strong>Name:</strong> <%= student.name %></p>
+  <p><strong>Email:</strong> <%= student.email %></p>
+  <p><strong>CGPA:</strong> <%= student.cgpa %></p>
 
-        <!-- Attendance -->
-        <div class="dashboard-card">
-            <h2>📊 Attendance</h2>
-            <p>Present: <%= attendance ? attendance.present : 0 %></p>
-            <p>Total: <%= attendance ? attendance.total : 0 %></p>
-            <p><strong><%= percentage %>%</strong></p>
+  <hr>
 
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" style="width:<%= percentage %>%"></div>
-            </div>
-        </div>
+  <!-- ================= ATTENDANCE ================= -->
+  <h2>My Attendance</h2>
 
-        <!-- Academics -->
-        <div class="dashboard-card">
-            <h2>📚 Academics</h2>
-            <p><strong>CGPA:</strong> <%= student.cgpa %></p>
-            <p><strong>Timetable:</strong></p>
-            <p class="timetable"><%= student.timetable %></p>
-        </div>
+  <% if (!attendance || attendance.length === 0) { %>
+    <p>No attendance available</p>
+  <% } else { %>
 
-    </div>
+    <% attendance.forEach(a => { 
+        let percent = 0;
+        if (a.totalClasses > 0) {
+          percent = ((a.attendedClasses / a.totalClasses) * 100).toFixed(1);
+        }
+    %>
 
+      <p>
+        <strong><%= a.subject %></strong> → 
+        <%= a.attendedClasses %>/<%= a.totalClasses %>
+        (<%= percent %>%)
+      </p>
+
+    <% }) %>
+
+  <% } %>
+
+  <hr>
+
+  <!-- ================= TIMETABLE ================= -->
+  <h2>Weekly Timetable</h2>
+
+  <% if (!timetable || timetable.length === 0) { %>
+    <p>No timetable available</p>
+  <% } else { %>
+
+    <% timetable.forEach(t => { %>
+      <p>
+        <%= t.day %> → <%= t.subject %> → <%= t.time %>
+      </p>
+    <% }) %>
+
+  <% } %>
+<a href="/user/logout" class="btn">Logout</a>
 </div>
 
 </body>
