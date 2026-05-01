@@ -18,16 +18,20 @@ router.get(
 // ================= UPDATE CGPA =================
 router.post("/update-cgpa", async (req, res) => {
   try {
+    const Users = require("../models/user"); // ✅ correct model
+
     const { studentId, cgpa } = req.body;
 
     await Users.findByIdAndUpdate(studentId, {
       cgpa: Number(cgpa)
     });
 
-    res.redirect("/faculty/dashboard");
+    console.log("CGPA UPDATED:", studentId, cgpa);
+
+    return res.redirect("/faculty/dashboard");
   } catch (err) {
     console.log("CGPA ERROR:", err);
-    res.send("Error updating CGPA");
+    return res.send("Error updating CGPA");
   }
 });
 
