@@ -5,13 +5,13 @@ const Timetable = require("../models/timetable");
 // ================= DASHBOARD =================
 async function getFacultyDashboard(req, res) {
   try {
-    // 🔥 get only students from users collection
+    // fetch fresh students every time
     const students = await Users.find({ role: "student" });
 
     const attendance = await Attendance.find();
     const timetable = await Timetable.find();
 
-    res.render("facultyDashboard", {
+    return res.render("facultyDashboard", {
       students,
       attendance,
       timetable
@@ -19,22 +19,31 @@ async function getFacultyDashboard(req, res) {
 
   } catch (err) {
     console.log("FACULTY DASHBOARD ERROR:", err);
-    res.send("Error loading dashboard");
+    return res.status(500).send("Error loading dashboard");
   }
 }
 
 // ================= UPDATE CGPA =================
 async function updateCGPA(req, res) {
   try {
-    const { studentId, cgpa } = req.body;
+    let { studentId, cgpa } = req.body;
 
-    await Users.findByIdAndUpdate(studentId, { cgpa });
+    // ✅ FIX: ensure number type
+    cgpa = Number(cgpa);
 
-    res.redirect("/faculty/dashboard");
+    if (isNaN(cgpa)) {
+      return res.send("Invalid CGPA value");
+    }
+
+    await Users.findByIdAndUpdate(studentId, {
+      cgpa: cgpa
+    });
+
+    return res.redirect("/faculty/dashboard");
 
   } catch (err) {
     console.log("CGPA ERROR:", err);
-    res.send("Error updating CGPA");
+    return res.status(500).send("Error updating CGPA");
   }
 }
 
@@ -46,15 +55,15 @@ async function updateAttendance(req, res) {
     await Attendance.create({
       studentId,
       subject,
-      attendedClasses,
-      totalClasses
+      attendedClasses: Number(attendedClasses),
+      totalClasses: Number(totalClasses)
     });
 
-    res.redirect("/faculty/dashboard");
+    return res.redirect("/faculty/dashboard");
 
   } catch (err) {
     console.log("ATTENDANCE ERROR:", err);
-    res.send("Error updating attendance");
+    return res.status(500).send("Error updating attendance");
   }
 }
 
@@ -69,11 +78,11 @@ async function addTimetable(req, res) {
       time
     });
 
-    res.redirect("/faculty/dashboard");
+    return res.redirect("/faculty/dashboard");
 
   } catch (err) {
     console.log("TIMETABLE ERROR:", err);
-    res.send("Error adding timetable");
+    return res.status(500).send("Error adding timetable");
   }
 }
 
