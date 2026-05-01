@@ -29,14 +29,14 @@ async function handleRegister(req, res) {
       email,
       password: hash,
       role,
-      cgpa: 0   // 👈 store cgpa directly here
+      cgpa: 0   // default CGPA
     });
 
     return res.redirect("/login");
 
   } catch (err) {
     console.log("REGISTER ERROR:", err);
-    return res.render("register", { error: err.message });
+    return res.render("register", { error: "Something went wrong ❌" });
   }
 }
 
