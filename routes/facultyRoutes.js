@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { restrictedToLoginOnly } = require("../middlewares/auth");
+
 const facultyController = require("../controllers/facultyController");
 
 const Users = require("../models/user");
@@ -18,20 +19,20 @@ router.get(
 // ================= UPDATE CGPA =================
 router.post("/update-cgpa", async (req, res) => {
   try {
-    const Users = require("../models/user"); // ✅ correct model
-
     const { studentId, cgpa } = req.body;
 
-    await Users.findByIdAndUpdate(studentId, {
-      cgpa: Number(cgpa)
-    });
+    const updated = await Users.findByIdAndUpdate(
+      studentId,
+      { cgpa: Number(cgpa) },
+      { new: true }   // ✅ important: ensures update happens correctly
+    );
 
-    console.log("CGPA UPDATED:", studentId, cgpa);
+    console.log("CGPA UPDATED:", updated);
 
     return res.redirect("/faculty/dashboard");
   } catch (err) {
     console.log("CGPA ERROR:", err);
-    return res.send("Error updating CGPA");
+    return res.status(500).send("Error updating CGPA");
   }
 });
 
@@ -49,10 +50,10 @@ router.post("/update-attendance", async (req, res) => {
       { upsert: true }
     );
 
-    res.redirect("/faculty/dashboard");
+    return res.redirect("/faculty/dashboard");
   } catch (err) {
     console.log("ATTENDANCE ERROR:", err);
-    res.send("Error updating attendance");
+    return res.status(500).send("Error updating attendance");
   }
 });
 
@@ -60,10 +61,10 @@ router.post("/update-attendance", async (req, res) => {
 router.post("/add-timetable", async (req, res) => {
   try {
     await Timetable.create(req.body);
-    res.redirect("/faculty/dashboard");
+    return res.redirect("/faculty/dashboard");
   } catch (err) {
     console.log("TIMETABLE ERROR:", err);
-    res.send("Error adding timetable");
+    return res.status(500).send("Error adding timetable");
   }
 });
 
