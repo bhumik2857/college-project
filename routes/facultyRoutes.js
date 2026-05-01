@@ -4,6 +4,10 @@ const router = express.Router();
 const { restrictedToLoginOnly } = require("../middlewares/auth");
 const facultyController = require("../controllers/facultyController");
 
+const Users = require("../models/user");
+const Attendance = require("../models/attendance");
+const Timetable = require("../models/timetable");
+
 // ================= DASHBOARD =================
 router.get(
   "/dashboard",
@@ -13,37 +17,50 @@ router.get(
 
 // ================= UPDATE CGPA =================
 router.post("/update-cgpa", async (req, res) => {
-  const { studentId, cgpa } = req.body;
+  try {
+    const { studentId, cgpa } = req.body;
 
-  const Student = require("../models/student");
+    await Users.findByIdAndUpdate(studentId, {
+      cgpa: Number(cgpa)
+    });
 
-  await Student.findByIdAndUpdate(studentId, { cgpa });
-
-  res.redirect("/faculty/dashboard");
+    res.redirect("/faculty/dashboard");
+  } catch (err) {
+    console.log("CGPA ERROR:", err);
+    res.send("Error updating CGPA");
+  }
 });
 
 // ================= UPDATE ATTENDANCE =================
 router.post("/update-attendance", async (req, res) => {
-  const { studentId, subject, attendedClasses, totalClasses } = req.body;
+  try {
+    const { studentId, subject, attendedClasses, totalClasses } = req.body;
 
-  const Attendance = require("../models/attendance");
+    await Attendance.findOneAndUpdate(
+      { studentId, subject },
+      {
+        attendedClasses: Number(attendedClasses),
+        totalClasses: Number(totalClasses)
+      },
+      { upsert: true }
+    );
 
-  await Attendance.findOneAndUpdate(
-    { studentId, subject },
-    { attendedClasses, totalClasses },
-    { upsert: true }
-  );
-
-  res.redirect("/faculty/dashboard");
+    res.redirect("/faculty/dashboard");
+  } catch (err) {
+    console.log("ATTENDANCE ERROR:", err);
+    res.send("Error updating attendance");
+  }
 });
 
 // ================= ADD TIMETABLE =================
 router.post("/add-timetable", async (req, res) => {
-  const Timetable = require("../models/timetable");
-
-  await Timetable.create(req.body);
-
-  res.redirect("/faculty/dashboard");
+  try {
+    await Timetable.create(req.body);
+    res.redirect("/faculty/dashboard");
+  } catch (err) {
+    console.log("TIMETABLE ERROR:", err);
+    res.send("Error adding timetable");
+  }
 });
 
 module.exports = router;
